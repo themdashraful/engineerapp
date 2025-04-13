@@ -3,242 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Picture Gallery</title>
-    <style>
-        /* Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #fafafa;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            flex-direction: column;
-            margin: 0;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 36px;
-            color: #222;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .album-container {
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        /* Gallery */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .gallery img {
-            width: 100%;
-            height: auto;
-            border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            opacity: 0.85;
-        }
-
-        .gallery img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-            opacity: 1;
-        }
-
-        /* Lightbox */
-        #lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        #lightbox img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 12px;
-            transform: scale(0.9);
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        #lightbox.show {
-            display: flex;
-            opacity: 1;
-        }
-
-        #lightbox .close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 40px;
-            color: white;
-            cursor: pointer;
-            z-index: 1100;
-            transition: opacity 0.3s ease;
-        }
-
-        #lightbox .close:hover {
-            opacity: 0.7;
-        }
-
-        #lightbox .prev,
-        #lightbox .next {
-            position: absolute;
-            top: 50%;
-            font-size: 40px;
-            color: white;
-            cursor: pointer;
-            z-index: 1100;
-            transition: opacity 0.3s ease;
-        }
-
-        #lightbox .prev {
-            left: 20px;
-        }
-
-        #lightbox .next {
-            right: 20px;
-        }
-
-        #lightbox .prev:hover,
-        #lightbox .next:hover {
-            opacity: 0.7;
-        }
-
-        footer {
-            font-size: 14px;
-            color: #777;
-            background-color: #222;
-            width: 100%;
-            padding: 20px;
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        footer a {
-            color: #00bcd4;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        footer a:hover {
-            color: #fff;
-        }
-
-        /* Button Style */
-        .upload-button {
-            padding: 10px 20px;
-            background-color: #00bcd4;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 18px;
-            margin-bottom: 40px;
-            transition: background-color 0.3s ease;
-        }
-
-        .upload-button:hover {
-            background-color: #008c99;
-        }
-
-    </style>
+    <title>Professional Photo Album</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">My Photo Gallery</h1>
+            <nav class="nav">
+                <a href="#" class="nav-link active" data-filter="all">All</a>
+                <a href="#" class="nav-link" data-filter="nature">Nature</a>
+                <a href="#" class="nav-link" data-filter="travel">Travel</a>
+                <a href="#" class="nav-link" data-filter="people">People</a>
+            </nav>
+        </div>
+    </header>
 
-    <a href="javascript:void(0);" class="upload-button" onclick="triggerUpload()">Upload New Image</a>
+    <main class="main">
+        <div class="container">
+            <div class="gallery-container">
+                <div class="gallery" id="gallery">
+                    <!-- Images will be loaded here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
 
-    <div class="album-container">
-        <h1>Premium Picture Gallery</h1>
-        <div class="gallery" id="gallery">
-            <!-- Gallery images will be added dynamically by JavaScript -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <span class="close-btn" id="close-btn">&times;</span>
+            <img src="" alt="" class="lightbox-img" id="lightbox-img">
+            <div class="lightbox-nav">
+                <button class="nav-btn prev-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-btn next-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="image-info" id="image-info"></div>
         </div>
     </div>
 
-    <!-- Lightbox Modal -->
-    <div id="lightbox">
-        <span class="close" onclick="closeLightbox()">×</span>
-        <span class="prev" onclick="navigateLightbox(-1)">&#10094;</span>
-        <img id="lightbox-img" src="" alt="Expanded Image">
-        <span class="next" onclick="navigateLightbox(1)">&#10095;</span>
-    </div>
-
-    <footer>
-        <p>© 2025 Premium Album | <a href="#">Contact Us</a> | <a href="#">Terms & Conditions</a></p>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2023 My Photo Album. All rights reserved.</p>
+        </div>
     </footer>
 
-    <script>
-        // Fetch the JSON file containing image data
-        fetch('images.json')
-            .then(response => response.json())
-            .then(data => {
-                const gallery = document.getElementById("gallery");
-                const imageList = data.images; // List of image filenames
-                let currentImageIndex = 0;
-
-                // Populate the gallery with images dynamically
-                imageList.forEach((imageName, index) => {
-                    const img = document.createElement('img');
-                    img.src = `images/${imageName}`;
-                    img.alt = `Image ${index + 1}`;
-                    img.onclick = () => openLightbox(index);
-                    gallery.appendChild(img);
-                });
-
-                // Open lightbox with the clicked image
-                function openLightbox(index) {
-                    lightbox.style.display = "flex";
-                    lightbox.classList.add("show");
-                    lightboxImg.src = `images/${imageList[index]}`;
-                    currentImageIndex = index;
-                }
-
-                // Close lightbox
-                function closeLightbox() {
-                    lightbox.classList.remove("show");
-                }
-
-                // Navigate through the images in the lightbox
-                function navigateLightbox(direction) {
-                    currentImageIndex += direction;
-                    if (currentImageIndex < 0) currentImageIndex = imageList.length - 1;
-                    if (currentImageIndex >= imageList.length) currentImageIndex = 0;
-                    lightboxImg.src = `images/${imageList[currentImageIndex]}`;
-                }
-
-            })
-            .catch(error => console.error('Error loading the images.json file:', error));
-
-        // Trigger file upload (For demo purposes, this is just a placeholder)
-        function triggerUpload() {
-            alert("Upload functionality is not implemented in this demo.");
-        }
-
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
