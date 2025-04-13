@@ -1,1 +1,104 @@
-hi
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Picture Album</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        .album {
+            text-align: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.05);
+        }
+
+        .no-images {
+            font-size: 18px;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="album">
+        <h1>My Picture Album</h1>
+        <div class="gallery" id="gallery">
+            <!-- Images will be inserted here by JavaScript -->
+        </div>
+
+        <p class="no-images" id="no-images-text">No images to display. Please upload images to the "images" folder.</p>
+    </div>
+
+    <script>
+        // List of image filenames in the 'images' folder
+        const imageList = [
+            'icon.png',  // Replace with your actual filenames
+            'image2.jpg',
+            'image3.jpg',
+            'image4.jpg',
+            'image5.jpg'
+        ];
+
+        const gallery = document.getElementById('gallery');
+        const noImagesText = document.getElementById('no-images-text');
+
+        // Check if imageList is empty
+        if (imageList.length === 0) {
+            noImagesText.style.display = 'block';
+        } else {
+            noImagesText.style.display = 'none';
+        }
+
+        // Loop through the image filenames and create image elements
+        imageList.forEach(imageName => {
+            const img = document.createElement('img');
+            img.src = `images/${imageName}`;  // Path relative to your repository
+            img.alt = `Image - ${imageName}`;
+            gallery.appendChild(img);
+        });
+    </script>
+
+</body>
+</html>
