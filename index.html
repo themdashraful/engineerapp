@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Premium Picture Album</title>
+    <title>My Dynamic Picture Album</title>
     <style>
         /* Basic Reset */
         * {
@@ -156,7 +156,7 @@
 <body>
 
     <div class="album-container">
-        <h1>Premium Picture Album</h1>
+        <h1>Dynamic Picture Album</h1>
         <div class="gallery" id="gallery">
             <!-- Gallery images will be added dynamically by JavaScript -->
         </div>
@@ -171,59 +171,50 @@
     </div>
 
     <footer>
-        <p>© 2025 Premium Album | <a href="#">Contact Us</a> | <a href="#">Terms & Conditions</a></p>
+        <p>© 2025 Dynamic Album | <a href="#">Contact Us</a> | <a href="#">Terms & Conditions</a></p>
     </footer>
 
     <script>
-        // List of image filenames in the 'images' folder
-        const imageList = [
-            'icon.png',  // Replace with your actual filenames
-            'image2.jpg',
-            'image3.jpg',
-            'image4.jpg',
-            'image5.jpg',
-            'image6.jpg'
-        ];
+        // Fetch the image list from the JSON file
+        fetch('images.json')
+            .then(response => response.json())
+            .then(imageList => {
+                const gallery = document.getElementById('gallery');
+                imageList.forEach((imageName, index) => {
+                    const img = document.createElement('img');
+                    img.src = `images/${imageName}`;  // Path to the images
+                    img.alt = `Image - ${imageName}`;
+                    img.onclick = () => openLightbox(index);
+                    gallery.appendChild(img);
+                });
+            })
+            .catch(error => console.error('Error loading images:', error));
 
-        const gallery = document.getElementById('gallery');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
-        let currentImageIndex = 0;  // To track the current image in the lightbox
+        let currentImageIndex = 0;
 
-        // Loop through the image filenames and create image elements
-        imageList.forEach((imageName, index) => {
-            const img = document.createElement('img');
-            img.src = `images/${imageName}`;  // Path relative to your repository
-            img.alt = `Image - ${imageName}`;
-            img.onclick = () => openLightbox(index);  // Open the lightbox on click
-            gallery.appendChild(img);
-        });
-
-        // Function to open the lightbox with the clicked image
+        // Open the lightbox
         function openLightbox(index) {
-            lightbox.style.display = 'flex';  // Show the lightbox
-            lightbox.classList.add('show');  // Add animation to show the lightbox
-            lightboxImg.src = `images/${imageList[index]}`;  // Set the source of the lightbox image
-            currentImageIndex = index;  // Update the current image index
+            lightbox.style.display = 'flex';
+            lightbox.classList.add('show');
+            lightboxImg.src = `images/${imageList[index]}`;
+            currentImageIndex = index;
         }
 
-        // Function to close the lightbox
+        // Close the lightbox
         function closeLightbox() {
-            lightbox.classList.remove('show');  // Hide the lightbox with transition
+            lightbox.classList.remove('show');
         }
 
-        // Function to navigate between images in the lightbox
+        // Navigate through images in the lightbox
         function navigateLightbox(direction) {
             currentImageIndex += direction;
-
-            // Ensure we stay within the bounds of the array
             if (currentImageIndex < 0) {
                 currentImageIndex = imageList.length - 1;
             } else if (currentImageIndex >= imageList.length) {
                 currentImageIndex = 0;
             }
-
-            // Update the lightbox image
             lightboxImg.src = `images/${imageList[currentImageIndex]}`;
         }
     </script>
