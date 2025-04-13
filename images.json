@@ -1,7 +1,44 @@
-{
-    "filename": "icon.png",
-    "title": "Image Title",
-    "description": "Description of the image",
-    "date": "YYYY-MM-DD",
-    "tags": ["tag1", "tag2"]
-}
+[
+    {
+        "filename": "icon.png",
+        "title": "Mountain Sunrise",
+        "description": "Beautiful sunrise over the mountains",
+        "date": "2023-06-15",
+        "tags": ["nature", "landscape"]
+    },
+    {
+        "filename": "image2.jpg",
+        "title": "City Skyline",
+        "description": "Night view of the city lights",
+        "date": "2023-07-22",
+        "tags": ["travel", "urban"]
+    },
+    {
+        "filename": "image3.jpg",
+        "title": "Portrait Session",
+        "description": "Professional portrait photography",
+        "date": "2023-08-10",
+        "tags": ["people", "portrait"]
+    },
+    {
+        "filename": "image4.jpg",
+        "title": "Ocean Waves",
+        "description": "Waves crashing on the shore at sunset",
+        "date": "2023-09-05",
+        "tags": ["nature", "water"]
+    },
+    {
+        "filename": "image5.jpg",
+        "title": "Street Market",
+        "description": "Vibrant colors at the local market",
+        "date": "2023-10-12",
+        "tags": ["travel", "people"]
+    },
+    {
+        "filename": "image6.jpg",
+        "title": "Wildlife Photography",
+        "description": "Deer in the morning mist",
+        "date": "2023-11-18",
+        "tags": ["nature", "animals"]
+    }
+]
