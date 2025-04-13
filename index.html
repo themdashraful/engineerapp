@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Professional Picture Album</title>
+    <title>My Premium Picture Album</title>
     <style>
         /* Basic Reset */
         * {
@@ -14,54 +14,54 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f9f9f9;
             color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             overflow-x: hidden;
+            flex-direction: column;
+            text-align: center;
         }
 
-        .album {
-            text-align: center;
+        .album-container {
             width: 100%;
             max-width: 1200px;
-            padding: 30px;
-            background-color: white;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            margin-top: 50px;
         }
 
         h1 {
-            font-size: 40px;
+            font-size: 48px;
             margin-bottom: 40px;
             color: #333;
-            text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         /* Gallery Layout */
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
-            padding: 20px 10px;
+            padding: 20px;
+            transition: grid-template-columns 0.3s ease-in-out;
         }
 
         .gallery img {
             width: 100%;
             height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0.9;
         }
 
         .gallery img:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            opacity: 1;
         }
 
         /* Lightbox Styles */
@@ -72,32 +72,51 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             justify-content: center;
             align-items: center;
             z-index: 1000;
             transition: opacity 0.3s ease;
+            opacity: 0;
         }
 
         #lightbox img {
             max-width: 90%;
-            max-height: 80%;
-            border-radius: 10px;
+            max-height: 90%;
+            border-radius: 12px;
+            transform: scale(0.9);
             transition: transform 0.3s ease;
         }
 
-        #lightbox .close, #lightbox .prev, #lightbox .next {
-            position: absolute;
-            top: 20px;
-            color: #fff;
-            font-size: 30px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: opacity 0.3s ease;
+        #lightbox.show {
+            display: flex;
+            opacity: 1;
         }
 
         #lightbox .close {
+            position: absolute;
+            top: 20px;
             right: 20px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            z-index: 1100;
+            transition: opacity 0.3s ease;
+        }
+
+        #lightbox .close:hover {
+            opacity: 0.7;
+        }
+
+        #lightbox .prev,
+        #lightbox .next {
+            position: absolute;
+            top: 50%;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            z-index: 1100;
+            transition: opacity 0.3s ease;
         }
 
         #lightbox .prev {
@@ -105,32 +124,41 @@
         }
 
         #lightbox .next {
-            right: 60px;
+            right: 20px;
         }
 
-        /* Lightbox Navigation Hover */
-        #lightbox .prev:hover, #lightbox .next:hover {
-            color: #00BFFF;
+        #lightbox .prev:hover,
+        #lightbox .next:hover {
+            opacity: 0.7;
         }
 
         /* Footer Styles */
         footer {
-            text-align: center;
             font-size: 16px;
-            padding: 20px;
-            background-color: #333;
-            color: #fff;
+            color: #aaa;
+            background-color: #222;
             width: 100%;
-            margin-top: 30px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer a {
+            color: #00bcd4;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #fff;
         }
     </style>
 </head>
 <body>
 
-    <div class="album">
-        <h1>My Professional Picture Album</h1>
+    <div class="album-container">
+        <h1>Premium Picture Album</h1>
         <div class="gallery" id="gallery">
-            <!-- Images will be inserted here by JavaScript -->
+            <!-- Gallery images will be added dynamically by JavaScript -->
         </div>
     </div>
 
@@ -143,7 +171,7 @@
     </div>
 
     <footer>
-        <p>© 2025 My Picture Album. All Rights Reserved.</p>
+        <p>© 2025 Premium Album | <a href="#">Contact Us</a> | <a href="#">Terms & Conditions</a></p>
     </footer>
 
     <script>
@@ -153,7 +181,8 @@
             'image2.jpg',
             'image3.jpg',
             'image4.jpg',
-            'image5.jpg'
+            'image5.jpg',
+            'image6.jpg'
         ];
 
         const gallery = document.getElementById('gallery');
@@ -166,20 +195,21 @@
             const img = document.createElement('img');
             img.src = `images/${imageName}`;  // Path relative to your repository
             img.alt = `Image - ${imageName}`;
-            img.onclick = () => openLightbox(index);  // Pass the image index to lightbox function
+            img.onclick = () => openLightbox(index);  // Open the lightbox on click
             gallery.appendChild(img);
         });
 
         // Function to open the lightbox with the clicked image
         function openLightbox(index) {
             lightbox.style.display = 'flex';  // Show the lightbox
+            lightbox.classList.add('show');  // Add animation to show the lightbox
             lightboxImg.src = `images/${imageList[index]}`;  // Set the source of the lightbox image
             currentImageIndex = index;  // Update the current image index
         }
 
         // Function to close the lightbox
         function closeLightbox() {
-            lightbox.style.display = 'none';  // Hide the lightbox
+            lightbox.classList.remove('show');  // Hide the lightbox with transition
         }
 
         // Function to navigate between images in the lightbox
