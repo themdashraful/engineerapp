@@ -20,6 +20,7 @@
             height: 100vh;
             background-color: #f0f0f0;
             margin: 0;
+            overflow: hidden;
         }
 
         .album {
@@ -46,6 +47,7 @@
             height: auto;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
             transition: transform 0.3s ease;
         }
 
@@ -57,6 +59,35 @@
             font-size: 18px;
             color: #888;
             margin-top: 20px;
+        }
+
+        /* Lightbox styling */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 8px;
+        }
+
+        #lightbox .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -71,6 +102,12 @@
         <p class="no-images" id="no-images-text">No images to display. Please upload images to the "images" folder.</p>
     </div>
 
+    <!-- Lightbox Modal -->
+    <div id="lightbox">
+        <span class="close" onclick="closeLightbox()">×</span>
+        <img id="lightbox-img" src="" alt="Expanded Image">
+    </div>
+
     <script>
         // List of image filenames in the 'images' folder
         const imageList = [
@@ -83,6 +120,8 @@
 
         const gallery = document.getElementById('gallery');
         const noImagesText = document.getElementById('no-images-text');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
 
         // Check if imageList is empty
         if (imageList.length === 0) {
@@ -96,8 +135,20 @@
             const img = document.createElement('img');
             img.src = `images/${imageName}`;  // Path relative to your repository
             img.alt = `Image - ${imageName}`;
+            img.onclick = () => openLightbox(`images/${imageName}`);  // Open the lightbox on click
             gallery.appendChild(img);
         });
+
+        // Function to open the lightbox with the clicked image
+        function openLightbox(imageSrc) {
+            lightbox.style.display = 'flex';  // Show the lightbox
+            lightboxImg.src = imageSrc;      // Set the source of the lightbox image
+        }
+
+        // Function to close the lightbox
+        function closeLightbox() {
+            lightbox.style.display = 'none';  // Hide the lightbox
+        }
     </script>
 
 </body>
