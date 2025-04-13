@@ -1,6 +1,7 @@
-[
-    "icon.png",
-    "image2.jpg",
-    "image3.jpg",
-    "image4.jpg"
-]
+{
+    "filename": "icon.png",
+    "title": "Image Title",
+    "description": "Description of the image",
+    "date": "YYYY-MM-DD",
+    "tags": ["tag1", "tag2"]
+}
