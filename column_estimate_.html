@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Column Rebar Input</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 90%;
+            width: 400px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .rebar-container {
+            margin-bottom: 20px;
+            overflow: auto;
+        }
+        .rebar-input {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            gap: 5px;
+            flex-wrap: nowrap;
+        }
+        .rebar-input button {
+            width: 25px;
+            height: 25px;
+            padding: 0;
+            font-size: 14px;
+            line-height: 25px;
+        }
+        .rebar-input input {
+            width: 80px;
+            padding: 5px;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            overflow-x: auto;
+            display: block;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+            min-width: 80px;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                margin: 10px;
+            }
+            .rebar-input {
+                flex-wrap: wrap;
+            }
+        }
+        .dimension-group {
+            display: none;
+        }
+        .active-dimension {
+            display: block;
+        }
+        #shortColumnFields {
+            display: none;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Column Input</h2>
+        
+        <label>Column Name:</label>
+        <input type="text" id="columnName" placeholder="Enter column name" required="">
+        
+        <label>Concrete Mix Ratio:</label>
+        <select id="mixRatio">
+            <option value="1:1.5:3" selected="selected">1:1.5:3 (Cement:Sand:Aggregate)</option>
+            <option value="1:2:4">1:2:4 (Cement:Sand:Aggregate)</option>
+        </select>
+
+        <label>Column Type:</label>
+        <select id="columnType">
+            <option value="rectangular" selected="selected">Rectangular</option>
+            <option value="circular">Circular</option>
+        </select>
+
+        <label>Column Category:</label>
+        <select id="columnCategory">
+            <option value="long" selected="selected">Long Column</option>
+            <option value="short">Short Column</option>
+        </select>
+
+        <div id="rectangularDimensions" class="dimension-group active-dimension">
+            <label>Column Size X (in):</label>
+            <input type="number" id="columnX" placeholder="Enter size X" required="">
+            
+            <label>Column Size Y (in):</label>
+            <input type="number" id="columnY" placeholder="Enter size Y" required="">
+        </div>
+
+        <div id="circularDimensions" class="dimension-group">
+            <label>Column Diameter (in):</label>
+            <input type="number" id="columnDia" placeholder="Enter diameter">
+        </div>
+
+        <div id="shortColumnFields">
+            <label>Short Column Height (ft):</label>
+            <input type="number" id="shortHeight" placeholder="Enter short column height">
+            
+            <label>Long Column Height (ft):</label>
+            <input type="number" id="longHeight" placeholder="Enter long column height">
+        </div>
+
+        <div id="standardHeightField">
+            <label>Column Height (ft):</label>
+            <input type="number" id="columnHeight" placeholder="Enter height" required="">
+        </div>
+
+        <label>Number of Columns:</label>
+        <input type="number" id="columnNos" placeholder="Enter number of columns" required="">
+        
+        <div class="rebar-container" id="rebarContainer">
+            <div class="rebar-input">
+                <button type="button" onclick="addRebarField()">+</button>
+                <button type="button" onclick="removeRebarField(this)">-</button>
+                <input type="number" class="barDia" placeholder="Bar Size (mm)" required="">
+                <input type="number" class="barNos" placeholder="Nos." required="">
+            </div>
+        </div>
+        
+        <button type="button" id="addColumnBtn">Add Column</button>
+        
+        <h3>Column List</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Column Nos</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Size (in)</th>
+                    <th>Height (ft)</th>
+                    <th>Rebars</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="columnList"></tbody>
+        </table>
+
+        <button type="button" id="estimateBtn">Estimate</button>
+    </div>
+
+    <script>
+        // Initialize variables
+        let selectedMixRatio = "1:1.5:3";
+        let selectedColumnType = "rectangular";
+        let selectedColumnCategory = "long";
+
+        // DOM elements
+        const mixRatioSelect = document.getElementById("mixRatio");
+        const columnTypeSelect = document.getElementById("columnType");
+        const columnCategorySelect = document.getElementById("columnCategory");
+        const addColumnBtn = document.getElementById("addColumnBtn");
+        const estimateBtn = document.getElementById("estimateBtn");
+        const columnNameInput = document.getElementById("columnName");
+
+        // Event listeners
+        mixRatioSelect.addEventListener("change", function() {
+            selectedMixRatio = this.value;
+        });
+        
+        columnTypeSelect.addEventListener("change", function() {
+            selectedColumnType = this.value;
+            document.querySelectorAll('.dimension-group').forEach(group => {
+                group.classList.remove('active-dimension');
+            });
+            document.getElementById(selectedColumnType === 'rectangular' ? 'rectangularDimensions' : 'circularDimensions')
+                .classList.add('active-dimension');
+            document.getElementById("columnX").value = "";
+            document.getElementById("columnY").value = "";
+            document.getElementById("columnDia").value = "";
+        });
+        
+        columnCategorySelect.addEventListener("change", function() {
+            selectedColumnCategory = this.value;
+            if (selectedColumnCategory === "short") {
+                document.getElementById("shortColumnFields").style.display = "block";
+                document.getElementById("standardHeightField").style.display = "none";
+            } else {
+                document.getElementById("shortColumnFields").style.display = "none";
+                document.getElementById("standardHeightField").style.display = "block";
+            }
+        });
+        
+        addColumnBtn.addEventListener("click", addColumn);
+        estimateBtn.addEventListener("click", showEstimate);
+
+        function addRebarField() {
+            let container = document.getElementById("rebarContainer");
+            let div = document.createElement("div");
+            div.classList.add("rebar-input");
+            div.innerHTML = `
+                <button type="button" onclick="addRebarField()">+</button>
+                <button type="button" onclick="removeRebarField(this)">-</button>
+                <input type="number" class="barDia" placeholder="Bar Size (mm)" required>
+                <input type="number" class="barNos" placeholder="Nos." required>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeRebarField(button) {
+            let container = document.getElementById("rebarContainer");
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function addColumn() {
+            const columnName = columnNameInput.value;
+            const columnNos = document.getElementById("columnNos").value;
+            
+            if (!columnName || !columnNos) {
+                alert("Please fill all required fields");
+                return;
+            }
+            
+            let heights = [];
+            if (selectedColumnCategory === "short") {
+                const shortHeight = document.getElementById("shortHeight").value;
+                const longHeight = document.getElementById("longHeight").value;
+                if (!shortHeight || !longHeight) {
+                    alert("Please enter both short and long column heights");
+                    return;
+                }
+                heights.push({category: "short", height: parseFloat(shortHeight)});
+                heights.push({category: "long", height: parseFloat(longHeight)});
+            } else {
+                const height = document.getElementById("columnHeight").value;
+                if (!height) {
+                    alert("Please enter column height");
+                    return;
+                }
+                heights.push({category: "long", height: parseFloat(height)});
+            }
+            
+            let sizeDisplay = "";
+            if (selectedColumnType === "rectangular") {
+                const columnX = document.getElementById("columnX").value;
+                const columnY = document.getElementById("columnY").value;
+                if (!columnX || !columnY) {
+                    alert("Please enter both X and Y dimensions");
+                    return;
+                }
+                
+                if (selectedColumnCategory === "short") {
+                    // For short columns, keep original size for short column
+                    sizeDisplay = `${columnX}x${columnY}`;
+                    
+                    // Add short column with original size
+                    addColumnToTable(columnNos, columnName, selectedColumnType, 
+                                  "short", sizeDisplay, heights[0].height);
+                    
+                    // Add long column with increased dimensions (+3 inches on each side)
+                    const longX = parseInt(columnX) + 3;
+                    const longY = parseInt(columnY) + 3;
+                    addColumnToTable(columnNos, columnName, selectedColumnType, 
+                                  "long", `${longX}x${longY}`, heights[1].height);
+                    
+                    clearInputs();
+                    return;
+                } else {
+                    // For long columns, just use the entered dimensions
+                    sizeDisplay = `${columnX}x${columnY}`;
+                }
+            } else {
+                const columnDia = document.getElementById("columnDia").value;
+                if (!columnDia) {
+                    alert("Please enter diameter");
+                    return;
+                }
+                sizeDisplay = `⌀${columnDia}`;
+            }
+            
+            // Add one column for each height category
+            for (let h of heights) {
+                addColumnToTable(columnNos, columnName, selectedColumnType, 
+                              h.category, sizeDisplay, h.height);
+            }
+            
+            clearInputs();
+        }
+
+        function addColumnToTable(columnNos, columnName, columnType, columnCategory, sizeDisplay, height) {
+            const columnList = document.getElementById("columnList");
+            const row = document.createElement("tr");
+            
+            const rebars = Array.from(document.querySelectorAll(".rebar-input")).map(rebar => {
+                const dia = rebar.querySelector(".barDia").value;
+                const nos = rebar.querySelector(".barNos").value;
+                return `${nos} bars of ${dia}mm`;
+            }).join("<br>");
+            
+            row.innerHTML = `
+                <td>${columnNos}</td>
+                <td>${columnName}</td>
+                <td>${columnType.charAt(0).toUpperCase() + columnType.slice(1)}</td>
+                <td>${columnCategory.charAt(0).toUpperCase() + columnCategory.slice(1)}</td>
+                <td>${sizeDisplay}</td>
+                <td>${height}</td>
+                <td>${rebars}</td>
+                <td><button class="delete-btn" onclick="deleteColumn(this)">Delete</button></td>
+            `;
+            columnList.appendChild(row);
+        }
+
+        function deleteColumn(button) {
+            if (confirm("Are you sure you want to delete this column?")) {
+                button.closest("tr").remove();
+            }
+        }
+
+        function clearInputs() {
+            columnNameInput.value = "";
+            document.getElementById("columnX").value = "";
+            document.getElementById("columnY").value = "";
+            document.getElementById("columnDia").value = "";
+            document.getElementById("columnHeight").value = "";
+            document.getElementById("shortHeight").value = "";
+            document.getElementById("longHeight").value = "";
+            document.getElementById("columnNos").value = "";
+            document.getElementById("rebarContainer").innerHTML = `
+                <div class="rebar-input">
+                    <button type="button" onclick="addRebarField()">+</button>
+                    <button type="button" onclick="removeRebarField(this)">-</button>
+                    <input type="number" class="barDia" placeholder="Bar Size (mm)" required>
+                    <input type="number" class="barNos" placeholder="Nos." required>
+                </div>
+            `;
+        }
+
+        function showEstimate() {
+            const columns = Array.from(document.querySelectorAll("#columnList tr"));
+            if (columns.length === 0) {
+                alert("Please add at least one column first");
+                return;
+            }
+
+            const estimateData = columns.map(row => {
+                const cells = row.querySelectorAll("td");
+                return {
+                    columnNos: parseInt(cells[0].innerText),
+                    name: cells[1].innerText,
+                    type: cells[2].innerText.toLowerCase(),
+                    category: cells[3].innerText.toLowerCase(),
+                    size: cells[4].innerText,
+                    height: parseFloat(cells[5].innerText),
+                    rebars: cells[6].innerHTML.replace(/<br>/g, "\n")
+                };
+            });
+
+            const estimatePage = window.open("", "_blank");
+            estimatePage.document.write(`
+                <html>
+                    <head>
+                        <title>Column Construction Estimate</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <style>
+                            body { 
+                                font-family: Arial; 
+                                padding: 15px; 
+                                margin: 0;
+                                font-size: 16px;
+                            }
+                            h2 { 
+                                color: #2c3e50; 
+                                border-bottom: 2px solid #3498db; 
+                                padding-bottom: 10px;
+                                font-size: 1.5rem;
+                            }
+                            table { 
+                                width: 100%; 
+                                max-width: 100%;
+                                border-collapse: collapse; 
+                                margin: 20px 0;
+                                overflow-x: auto;
+                                display: block;
+                            }
+                            th, td { 
+                                padding: 12px; 
+                                border: 1px solid #ddd; 
+                                text-align: left; 
+                                min-width: 120px;
+                            }
+                            th { 
+                                background: #3498db; 
+                                color: white; 
+                                font-size: 0.95rem;
+                            }
+                            .total-row { 
+                                background-color: #f8f9fa; 
+                                font-weight: bold; 
+                            }
+                            @media (max-width: 768px) {
+                                body { padding: 10px; font-size: 15px; }
+                                th, td { padding: 10px; font-size: 0.85rem; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Column Construction Estimate</h2>
+                        <h3>Material Summary (Mix Ratio: ${selectedMixRatio})</h3>
+                        <table id="materialSummary">
+                            <tr><th>Material</th><th>Quantity</th></tr>
+                        </table>
+                        <h3>Detailed Column Specifications</h3>
+                        <table id="columnSpecifications">
+                            <tr>
+                                <th>Column Nos</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Size (in)</th>
+                                <th>Height (ft)</th>
+                                <th>Rebars</th>
+                            </tr>
+                        </table>
+                    </body>
+                </html>
+            `);
+
+            // Material Calculations
+            let totalDryVolume = 0;
+            const steelBySize = {};
+            const stirrupDia = 10;
+            let totalStirrupWeight = 0;
+
+            estimateData.forEach(data => {
+                let wetVolume, totalWetVolume;
+                let stirrupLengthIn;
+
+                if (data.type === "rectangular") {
+                    // Rectangular column calculations
+                    const columnX = parseFloat(data.size.split('x')[0]);
+                    const columnY = parseFloat(data.size.split('x')[1]);
+                    
+                    // Concrete volume (convert to cubic feet)
+                    wetVolume = (columnX * columnY * data.height) / 144;
+                    
+                    // Stirrup length calculation
+                    const clearCover = 1.5;
+                    stirrupLengthIn = 2 * (columnX - 2 * clearCover) + 2 * (columnY - 2 * clearCover) + 6;
+                } else {
+                    // Circular column calculations
+                    const columnDia = parseFloat(data.size.replace('⌀', ''));
+                    const radius = columnDia / 2;
+                    
+                    // Concrete volume (convert to cubic feet)
+                    wetVolume = (Math.PI * Math.pow(radius, 2) * data.height) / 144;
+                    
+                    // Stirrup length calculation
+                    const clearCover = 1.5;
+                    const effectiveDia = columnDia - 2 * clearCover;
+                    stirrupLengthIn = Math.PI * effectiveDia + 6; // Adding 6 inches for hooks
+                }
+
+                totalWetVolume = wetVolume * data.columnNos;
+                const dryVolume = totalWetVolume * 1.54; // Dry volume is 1.54 times wet volume
+                totalDryVolume += dryVolume;
+
+                // Main Rebar Calculations
+                let rebarDetails = data.rebars.split("\n").map(rebar => {
+                    const match = rebar.match(/(\d+) bars of (\d+)mm/);
+                    if (!match) return null;
+                    const nos = parseInt(match[1]);
+                    const dia = parseInt(match[2]);
+                    // Add 1.5 feet (18 inches) to height for short columns
+                    const rebarHeight = data.category === "short" ? data.height + 1.5 : data.height;
+                    const weight = (nos * rebarHeight * Math.pow(dia, 2) / 533) * data.columnNos;
+                    steelBySize[dia] = (steelBySize[dia] || 0) + weight;
+                    return `${nos} bars of ${dia}mm${data.category === "short" ? " (with 18\" extra)" : ""}`;
+                }).filter(item => item !== null);
+
+                // Stirrup Calculations - adjust spacing based on column category
+                let stirrupSpacing = data.category === "short" ? 6 : 5; // inches (wider spacing for short columns)
+                const stirrupLengthFt = stirrupLengthIn / 12;
+                const numberOfStirrups = Math.ceil((data.height * 12) / stirrupSpacing) * data.columnNos;
+                const stirrupWeight = (numberOfStirrups * stirrupLengthFt * Math.pow(stirrupDia, 2) / 533);
+                steelBySize[stirrupDia] = (steelBySize[stirrupDia] || 0) + stirrupWeight;
+                totalStirrupWeight += stirrupWeight;
+
+                // Add column details to table
+                estimatePage.document.querySelector('#columnSpecifications').innerHTML += `
+                    <tr>
+                        <td>${data.columnNos}</td>
+                        <td>${data.name}</td>
+                        <td>${data.type.charAt(0).toUpperCase() + data.type.slice(1)}</td>
+                        <td>${data.category.charAt(0).toUpperCase() + data.category.slice(1)}</td>
+                        <td>${data.size}</td>
+                        <td>${data.height.toFixed(2)}</td>
+                        <td>${rebarDetails.join("<br>")}<br>Stirrups: ${stirrupDia}mm @ ${stirrupSpacing}in</td>
+                    </tr>
+                `;
+            });
+
+            // Material Summary based on selected mix ratio
+            const materialTable = estimatePage.document.querySelector('#materialSummary');
+            const [cementRatio, sandRatio, aggregateRatio] = selectedMixRatio.split(':').map(Number);
+            const totalParts = cementRatio + sandRatio + aggregateRatio;
+            const cementBags = Math.ceil((totalDryVolume * (cementRatio / totalParts)) / 1.25);
+            
+            // Add concrete materials
+            materialTable.innerHTML += `
+                <tr><td>Cement Bags (50kg)</td><td>${cementBags}</td></tr>
+                <tr><td>Sand (cft)</td><td>${(totalDryVolume * (sandRatio / totalParts)).toFixed(1)}</td></tr>
+                <tr><td>Aggregate (cft)</td><td>${(totalDryVolume * (aggregateRatio / totalParts)).toFixed(1)}</td></tr>
+            `;
+
+            // Add steel materials
+            Object.entries(steelBySize).forEach(([size, weight]) => {
+                const label = size == stirrupDia ? `Stirrups (${size}mm)` : `Rebar (${size}mm)`;
+                materialTable.innerHTML += `
+                    <tr><td>${label}</td><td>${weight.toFixed(1)} kg</td></tr>
+                `;
+            });
+
+            estimatePage.document.close();
+        }
+    </script>
+</body></html>
